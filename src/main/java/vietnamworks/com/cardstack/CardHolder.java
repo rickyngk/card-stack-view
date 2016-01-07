@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import vietnamworks.com.helper.StateObject;
+import R.helper.StateObject;
 
 /**
  * Created by duynk on 1/5/16.

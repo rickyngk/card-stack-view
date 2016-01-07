@@ -14,8 +14,8 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import vietnamworks.com.helper.BaseActivity;
-import vietnamworks.com.helper.Common;
+import R.helper.BaseActivity;
+import R.helper.Common;
 
 /**
  * Created by duynk on 1/5/16.

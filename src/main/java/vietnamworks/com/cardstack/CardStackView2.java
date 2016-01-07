@@ -13,10 +13,10 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.widget.FrameLayout;
 
-import vietnamworks.com.helper.BaseActivity;
-import vietnamworks.com.helper.Callback;
-import vietnamworks.com.helper.CallbackResult;
-import vietnamworks.com.helper.Common;
+import R.helper.BaseActivity;
+import R.helper.Callback;
+import R.helper.CallbackResult;
+import R.helper.Common;
 
 /**
  * Created by duynk on 1/5/16.
