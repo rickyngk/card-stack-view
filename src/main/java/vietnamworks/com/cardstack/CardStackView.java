@@ -205,8 +205,7 @@ public class CardStackView extends FrameLayout {
         this.state = state;
         this.nextState = state;
         int n = Math.min(delegate.getCount(), cards.size());
-
-        System.out.println("onEnterState " + lastState + " -> " + state);
+        
         switch (state) {
             case STATE_PRE_INIT:
                 showLoading(true);
