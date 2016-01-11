@@ -8,6 +8,8 @@ import android.view.View;
 public interface CardStackViewDelegate {
     void onStarted(CardStackView v);
     View onLoadView(CardStackView v, int index);
+    View onLoadEmptyView(CardStackView v);
+
     int getCount();
 
     void onDrag(CardStackView v, float confidence);

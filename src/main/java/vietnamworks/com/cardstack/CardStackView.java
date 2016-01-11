@@ -29,6 +29,24 @@ public class CardStackView extends FrameLayout {
     public final static int STATE_FLY_OUT = STATE_SCROLL_BACK + 1;
     public final static int STATE_REORDER = STATE_FLY_OUT + 1;
 
+    private final static String[] STATE = {
+            "STATE_PRE_INIT",
+            "STATE_IDLE",
+            "STATE_DRAG",
+            "STATE_DRAG_OUT",
+            "STATE_SCROLL_BACK",
+            "STATE_FLY_OUT",
+            "STATE_REORDER"
+    };
+
+    private String getStateName(int s) {
+        if (s >= STATE_PRE_INIT) {
+            return STATE[s];
+        } else {
+            return "STATE_NONE";
+        }
+    }
+
 
     public final static float CARD_STEP_SIZE = 10f; //card reductive size for each level in stack
     public final static float CARD_TRIGGER_PERCENT = 0.25f; //distance of dragging that trigger opening next card, based of percent of card width
@@ -205,7 +223,8 @@ public class CardStackView extends FrameLayout {
         this.state = state;
         this.nextState = state;
         int n = Math.min(delegate.getCount(), cards.size());
-        
+
+        System.out.println("onEnterState: " + getStateName(lastState) + " -> " + getStateName(state));
         switch (state) {
             case STATE_PRE_INIT:
                 showLoading(true);
@@ -320,15 +339,25 @@ public class CardStackView extends FrameLayout {
 
         if (!showLoading) { //update card view state
             int total_record = delegate.getCount();
+            int actual_total_record = total_record; //add a card for no result
+            if (actual_total_record == 0) {
+                actual_total_record++;
+            }
             int total_cards = cards.size();
 
-            for (IntPair pair : stateViewModel.requestedView) {
-                View v = delegate.onLoadView(this, pair.j);
-                cards.get(pair.i).removeAllViews();
-                cards.get(pair.i).addView(v);
+            if (total_record > 0) {
+                for (IntPair pair : stateViewModel.requestedView) {
+                    View v = delegate.onLoadView(this, pair.j);
+                    cards.get(pair.i).removeAllViews();
+                    cards.get(pair.i).addView(v);
+                }
+            } else {
+                View v = delegate.onLoadEmptyView(this);
+                cards.get(0).removeAllViews();
+                cards.get(0).addView(v);
             }
 
-            int total_available_records = total_record - frontIndex;
+            int total_available_records = actual_total_record - frontIndex;
             int total_available_cards = Math.max(total_cards - 1, 0); //don't show reserved cards
             if (state == STATE_DRAG_OUT || state == STATE_FLY_OUT) {
                 total_available_cards = total_cards;
@@ -340,7 +369,7 @@ public class CardStackView extends FrameLayout {
             }
 
             float movingDistance = CARD_STEP_SIZE;
-            int n = Math.min(total_record, total_cards);
+            int n = Math.min(actual_total_record, total_cards);
             for (int i = 1; i < n; i++) {
                 final View v = cards.get(i);
                 float width = v.getWidth();
@@ -377,11 +406,17 @@ public class CardStackView extends FrameLayout {
     private OnTouchListener onTouchListener = new OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent ev) {
-            if (state == STATE_SCROLL_BACK || state == STATE_FLY_OUT) {
+            if (state <= STATE_PRE_INIT || state == STATE_SCROLL_BACK || state == STATE_FLY_OUT) {
                 return false;
             }
             final int action = MotionEventCompat.getActionMasked(ev);
             float distanceX = (ev.getRawX() - mDownX);
+
+            if (delegate.getCount() == 0 && action == MotionEvent.ACTION_DOWN) {
+                delegate.onActive(CardStackView.this, -1);
+                return true;
+            }
+
             switch (action) {
                 case MotionEvent.ACTION_DOWN: {
                     lastTimeTouch = System.currentTimeMillis();
