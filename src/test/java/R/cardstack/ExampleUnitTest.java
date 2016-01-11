@@ -1,4 +1,4 @@
-package vietnamworks.com.cardstack;
+package R.cardstack;
 
 import org.junit.Test;
 

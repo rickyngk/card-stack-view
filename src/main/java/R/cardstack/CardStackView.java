@@ -1,4 +1,4 @@
-package vietnamworks.com.cardstack;
+package R.cardstack;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -16,6 +16,7 @@ import java.util.HashSet;
 
 import R.helper.BaseActivity;
 import R.helper.Common;
+import vietnamworks.com.cardstack.R;
 
 /**
  * Created by duynk on 1/5/16.
