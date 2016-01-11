@@ -61,7 +61,7 @@ public class CardStackView extends FrameLayout {
     private int lastState = -1;
     private boolean isAlive = true;
     private long frameDt;
-    private boolean waitForUIThead;
+    private boolean waitForUIThread;
     private long lastUpdate;
     private Thread thread;
 
@@ -175,11 +175,15 @@ public class CardStackView extends FrameLayout {
         cardHolder = this.findViewById(R.id.cards);
 
         density = this.getResources().getDisplayMetrics().density;
+    }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
         thread = new Thread() {
             @Override
             public void run() {
-                waitForUIThead = false;
+                waitForUIThread = false;
                 try {
                     while(isAlive) {
                         update();
@@ -194,6 +198,13 @@ public class CardStackView extends FrameLayout {
         thread.start();
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        isAlive = false;
+        thread.interrupt();
+    }
+
     public void setDelegate(@NonNull CardStackViewDelegate delegate) {
         this.delegate = delegate;
         if (this.state < 0) {
@@ -206,7 +217,7 @@ public class CardStackView extends FrameLayout {
     }
 
     private void update() {
-        if (waitForUIThead) {
+        if (waitForUIThread) {
             return;
         }
         frameDt = Math.min(System.currentTimeMillis() - lastUpdate, 500);
@@ -323,11 +334,11 @@ public class CardStackView extends FrameLayout {
     }
 
     private void beginUpdateLayout() {
-        waitForUIThead = true;
+        waitForUIThread = true;
     }
 
     private void finishUpdateLayout() {
-        waitForUIThead = false;
+        waitForUIThread = false;
         stateViewModel.update();
     }
 
