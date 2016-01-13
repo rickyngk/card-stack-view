@@ -425,7 +425,7 @@ public class CardStackView extends FrameLayout {
             float distanceX = (ev.getRawX() - mDownX);
 
             if (delegate.getCount() == 0 && action == MotionEvent.ACTION_DOWN) {
-                delegate.onActive(CardStackView.this, -1);
+                delegate.onOpen(CardStackView.this, -1);
                 return true;
             }
 
