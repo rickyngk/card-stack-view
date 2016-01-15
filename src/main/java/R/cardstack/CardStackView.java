@@ -475,4 +475,8 @@ public class CardStackView extends FrameLayout {
     public void ready() {
         switchState(STATE_IDLE);
     }
+
+    public View getFront() {
+        return cards.get(0);
+    }
 }
