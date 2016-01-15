@@ -450,7 +450,6 @@ public class CardStackView extends FrameLayout {
                         long dt = System.currentTimeMillis() - lastTimeTouch;
                         if (dt < SWIPE_MIN_DT && Math.abs(distanceX) > density * SWIPE_MIN_DISTANCE) {
                             //is swipe
-                            //TODO handle swipe action
                             switchState(STATE_FLY_OUT);
                         } else {
                             if (Math.abs(distanceX) < MOVE_MIN_DISTANCE * density) {
