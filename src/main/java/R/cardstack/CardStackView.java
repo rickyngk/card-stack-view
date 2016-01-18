@@ -55,7 +55,7 @@ public class CardStackView extends FrameLayout {
     public final static float SWIPE_MIN_DT = 500; //delta time to detect swipe
     public final static float SWIPE_MIN_DISTANCE = 50f; //min distance to detect swipe
     public final static float MOVE_MIN_DISTANCE = 3f; //min distance to recognize touch or drag
-    public final static float LERP_FACTOR = 0.2f; //lerp factor for transition animation
+    public final static float LERP_FACTOR = 0.3f; //lerp factor for transition animation
 
     private int state = -1;
     private int nextState = -1;
