@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import R.helper.BaseActivity;
@@ -132,7 +133,11 @@ public class CardStackView extends FrameLayout {
             model.frontTranslateX = this.frontTranslateX;
             model.showLoading = this.showLoading;
             model.hasChanged = this.hasChanged;
-            model.requestedView = (HashSet)this.requestedView.clone();
+            if (this.requestedView.size() == 0) {
+                model.requestedView.clear();
+            } else {
+                model.requestedView = (HashSet) this.requestedView.clone();
+            }
         }
     }
 
@@ -239,6 +244,7 @@ public class CardStackView extends FrameLayout {
         System.out.println("onEnterState: " + getStateName(lastState) + " -> " + getStateName(state));
         switch (state) {
             case STATE_PRE_INIT:
+                resetCache();
                 showLoading(true);
                 delegate.onStarted(this);
                 this.frontIndex = 0;
@@ -343,6 +349,12 @@ public class CardStackView extends FrameLayout {
         stateViewModel.update();
     }
 
+    private HashMap<Integer, Integer> mapCached;
+    private void resetCache() {
+        mapCached = new HashMap<>();
+    }
+
+
     private void updateLayout() {
         boolean showLoading = stateViewModel.showLoading;
 
@@ -359,14 +371,23 @@ public class CardStackView extends FrameLayout {
 
             if (total_record > 0) {
                 for (IntPair pair : stateViewModel.requestedView) {
-                    View v = delegate.onLoadView(this, pair.j);
-                    cards.get(pair.i).removeAllViews();
-                    cards.get(pair.i).addView(v);
+                    boolean hasCached = mapCached.containsKey(pair.i);
+                    boolean hasMissCached = hasCached;
+                    if (hasCached) {
+                        hasMissCached = mapCached.get(pair.i) != pair.j;
+                    }
+                    if (!hasCached || hasMissCached) {
+                        View v = delegate.onLoadView(this, pair.j);
+                        cards.get(pair.i).removeAllViews();
+                        cards.get(pair.i).addView(v);
+                        mapCached.put(pair.i, pair.j);
+                    }
                 }
             } else {
                 View v = delegate.onLoadEmptyView(this);
                 cards.get(0).removeAllViews();
                 cards.get(0).addView(v);
+                resetCache();
             }
 
             int total_available_records = actual_total_record - frontIndex;
