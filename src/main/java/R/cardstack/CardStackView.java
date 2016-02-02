@@ -1,16 +1,13 @@
 package R.cardstack;
 
 import android.content.Context;
-import android.graphics.Point;
 import android.support.annotation.NonNull;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -329,7 +326,7 @@ public class CardStackView extends FrameLayout {
 
         viewModel.copyTo(stateViewModel);
         viewModel.update();
-        if (stateViewModel.hasChanged) {
+        if (stateViewModel.hasChanged || forceUpdateLayoutNextFrame) {
             beginUpdateLayout();
             BaseActivity.timeout(new Runnable() {
                 @Override
@@ -360,7 +357,9 @@ public class CardStackView extends FrameLayout {
     }
 
 
+    boolean forceUpdateLayoutNextFrame = false;
     private void updateLayout() {
+        forceUpdateLayoutNextFrame = false;
         boolean showLoading = stateViewModel.showLoading;
 
         progressBar.setVisibility(showLoading ? VISIBLE : GONE);
@@ -374,8 +373,6 @@ public class CardStackView extends FrameLayout {
             }
             int total_cards = cards.size();
 
-            int card_child_width = 0;
-
             if (total_record > 0) {
                 for (IntPair pair : stateViewModel.requestedView) {
                     boolean hasCached = mapCached.containsKey(pair.i);
@@ -384,19 +381,11 @@ public class CardStackView extends FrameLayout {
                         hasMissCached = mapCached.get(pair.i) != pair.j;
                     }
                     if (!hasCached || hasMissCached) {
+                        forceUpdateLayoutNextFrame = true;
                         View v = delegate.onLoadView(this, pair.j);
                         cards.get(pair.i).removeAllViews();
                         cards.get(pair.i).addView(v);
                         mapCached.put(pair.i, pair.j);
-                        if (card_child_width == 0) {
-                            WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-                            Display display = wm.getDefaultDisplay();
-                            Point p = new Point();
-                            display.getSize(p);
-                            v.measure(p.x, p.y);
-                            card_child_width = v.getMeasuredWidth();
-                        }
-
                     }
                 }
             } else {
@@ -421,7 +410,7 @@ public class CardStackView extends FrameLayout {
             int n = Math.min(actual_total_record, total_cards);
             for (int i = 1; i < n; i++) {
                 final View v = cards.get(i);
-                float width = Math.max(Math.max(v.getWidth(), card_child_width), 1);
+                float width = Math.max(v.getWidth(), 1);
                 float delta_i = i;
                 if (state == STATE_DRAG_OUT || state == STATE_FLY_OUT) {
                     delta_i -= stateViewModel.frontOverMovingPercent;
