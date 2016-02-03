@@ -17,5 +17,6 @@ public interface CardStackViewDelegate {
     void onActive(CardStackView v, int index);
     void onEndOfStack(CardStackView v);
     void onOpen(CardStackView v, int index);
+    void onRollback(CardStackView v);
 
 }

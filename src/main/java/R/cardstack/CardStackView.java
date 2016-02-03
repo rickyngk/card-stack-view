@@ -264,6 +264,7 @@ public class CardStackView extends FrameLayout {
                 break;
             case STATE_SCROLL_BACK:
                 viewModel.setFrontTargetX(0);
+                delegate.onRollback(this);
                 break;
             case STATE_FLY_OUT:
                 viewModel.setFrontTargetX(Common.sign(viewModel.frontTranslateX) * BaseActivity.getScreenWidth());
@@ -410,21 +411,23 @@ public class CardStackView extends FrameLayout {
             int n = Math.min(actual_total_record, total_cards);
             for (int i = 1; i < n; i++) {
                 final View v = cards.get(i);
-                float width = Math.max(v.getWidth(), 1);
-                float delta_i = i;
-                if (state == STATE_DRAG_OUT || state == STATE_FLY_OUT) {
-                    delta_i -= stateViewModel.frontOverMovingPercent;
-                    if (i == n-1) {
-                        delta_i = n-2;
+                float width = v.getWidth();
+                if (width > 0) {
+                    float delta_i = i;
+                    if (state == STATE_DRAG_OUT || state == STATE_FLY_OUT) {
+                        delta_i -= stateViewModel.frontOverMovingPercent;
+                        if (i == n - 1) {
+                            delta_i = n - 2;
+                        }
                     }
-                }
 
-                float widthTarget = width - Common.convertDpToPixel(movingDistance * delta_i);
-                final float scale = widthTarget/width;
-                final float translate = Common.convertDpToPixel(movingDistance * delta_i);
-                v.setTranslationY(translate);
-                v.setScaleX(scale);
-                v.setScaleY(scale);
+                    float widthTarget = width - Common.convertDpToPixel(movingDistance * delta_i);
+                    final float scale = widthTarget / width;
+                    final float translate = Common.convertDpToPixel(movingDistance * delta_i);
+                    v.setTranslationY(translate);
+                    v.setScaleX(scale);
+                    v.setScaleY(scale);
+                }
             }
 
             View front = cards.get(0);
@@ -501,7 +504,11 @@ public class CardStackView extends FrameLayout {
         switchState(STATE_IDLE);
     }
 
-    public View getFront() {
+    public View getFrontViewHolder() {
         return cards.get(0);
+    }
+
+    public View getFrontView() {
+        return cards.get(0).getChildAt(0);
     }
 }
